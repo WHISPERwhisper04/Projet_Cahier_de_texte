@@ -1,7 +1,7 @@
 <?php
 
 //include the connection file
-include("connection.php");
+include_once("connection.php");
 
 //create an instance of Connection class
 $connection =new Connection();
@@ -28,14 +28,16 @@ CREATE TABLE module (
     description VARCHAR(100)
 )
  ";
-$query3="
-CREATE TABLE User_Module (
-    id_user INT(6) ,
-    id_module INT(6) ,
-    PRIMARY KEY (id_user, id_module),
-    FOREIGN KEY (id_user) REFERENCES user(id_user),
-    FOREIGN KEY (id_module) REFERENCES module(id_module)
-
+$query3 = "
+CREATE TABLE cahierDeTexte (
+    id_user INT(6),
+    id_module INT(6),
+    date_cours DATE NOT NULL,
+    chapitre_etudie VARCHAR(255) NOT NULL,
+    contenu_cours TEXT,
+    PRIMARY KEY (id_user, id_module, date_cours),
+    FOREIGN KEY (id_user) REFERENCES user(id_user) ON DELETE CASCADE,
+    FOREIGN KEY (id_module) REFERENCES module(id_module) ON DELETE CASCADE
 )
 ";
 $query4="
@@ -46,34 +48,16 @@ CREATE TABLE filiere (
 )
 ";
 $query5="
-CREATE TABLE module_filiere(
+CREATE TABLE groupe(
     id_module INT(6),
     id_filiere INT(6),
+    nom_groupe VARCHAR(30) NOT NULL,
     PRIMARY key(id_module,id_filiere),
     FOREIGN KEY (id_module) REFERENCES module(id_module),
     FOREIGN KEY (id_filiere) REFERENCES filiere(id_filiere)
 )
 ";
-$query6="
-CREATE TABLE groupe (
-    id_groupe INT AUTO_INCREMENT PRIMARY KEY,
-    nom_groupe VARCHAR(30) NOT NULL,
-    id_filiere INT(6),
-    FOREIGN KEY(id_filiere) REFERENCES filiere(id_filiere)
-    
-)
-";
-$query7="
-CREATE TABLE entree (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_user INT NOT NULL,
-    id_groupe INT NOT NULL,
-    date_cours DATE NOT NULL,
-    contenu VARCHAR(100) NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES user(id_user),
-    FOREIGN KEY (id_groupe) REFERENCES groupe(id_groupe)
-)
-";
+
 
 //call the selectDatabase method to select the chap4Db
 $connection->selectDatabase('cahierDeTexte');
@@ -83,7 +67,6 @@ $connection->createTable($query2);
 $connection->createTable($query3);
 $connection->createTable($query4);
 $connection->createTable($query5);
-$connection->createTable($query6);
-$connection->createTable($query7);
+
 
 ?>
