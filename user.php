@@ -34,7 +34,7 @@ $sql = "INSERT INTO $tableName (firstname, lastname, email, phone, password, rol
 public static function  selectAllUsers($tableName,$conn){
 //select all the client from database, and inset the rows results in an array $data[]
 include("database.php");
-    $sql = "SELECT id_user, firstName, lastname, email, phone, role FROM $tableName";  
+    $sql = "SELECT id_user, firstname, lastname, email, phone, role FROM $tableName";  
     $result = mysqli_query($conn, $sql); 
     if (mysqli_num_rows($result) > 0) {
         // output data of each row
@@ -48,7 +48,7 @@ include("database.php");
 
 static function selectUserById($tableName,$conn,$id){
     //select a client by id, and return the row result
-    $sql = "SELECT firstname, lastname, email, phone FROM $tableName WHERE id='$id'";
+    $sql = "SELECT firstname, lastname, email, phone, role FROM $tableName WHERE id_user='$id'";
     $result = mysqli_query($conn, $sql);
     if (mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
@@ -59,18 +59,17 @@ static function selectUserById($tableName,$conn,$id){
 static function updateUser($user,$tableName,$conn,$id){
     //update a client of $id, with the values of $client in parameter
     //and send the user to read.php
-    $sql = "UPDATE $tableName SET firstname='$user->firstname', lastname='$user->lastname', email='$user->email', phone='$user->phone' WHERE id='$id'";
+    $sql = "UPDATE $tableName SET firstname='$user->firstname', lastname='$user->lastname', email='$user->email', phone='$user->phone',role='$user->role' WHERE id_user='$id'";
     if (mysqli_query($conn, $sql)) {
         self::$successMsg = "Record updated successfully";
         header("Location: read.php");  
     } else {
         self::$errorMsg = "Error: " . mysqli_error($conn);
     }
-
 }
 static function deleteUser($tableName,$conn,$id){
     //delet a client by his id, and send the user to read.php
-    $sql = "DELETE FROM $tableName WHERE id='$id'";
+    $sql = "DELETE FROM $tableName WHERE id_user='$id'";
     if (mysqli_query($conn, $sql)) {
     self::$successMsg="Record deleted successfully";
     header("Location:read.php");
@@ -78,9 +77,7 @@ static function deleteUser($tableName,$conn,$id){
     self::$errorMsg="Error deleting record: " .
     mysqli_error($conn);
     }
-  
     }
-
 }
 
 ?>
