@@ -6,7 +6,7 @@ if (isset($_POST["submit"])) {
     $emailValue = $_POST["email"];
     $passwordValue = $_POST["password"];
 
-    // Validate email and password
+    // Validation email et mot de passe
     if ($emailValue == "") {
         $emailErrorMsg = "Email must be filled out";
     } else if (preg_match("/\w+(@emsi.ma){1}$/", $emailValue) == 0) {
@@ -14,50 +14,49 @@ if (isset($_POST["submit"])) {
     } else if ($passwordValue == "") {
         $passwordErrorMsg = "Password must be filled out";
     } else {
-        // Include the database connection
+        // Inclure la connexion à la base de données
         include('connection.php');
         $connection = new Connection();
         $connection->selectDatabase('cahierDeTexte');
         
-        // Use prepared statements to prevent SQL injection
+        // Préparer la requête pour éviter l'injection SQL
         $query = "SELECT * FROM user WHERE email = ?";
         $stmt = mysqli_prepare($connection->conn, $query);
-        mysqli_stmt_bind_param($stmt, 's', $emailValue); // Bind email parameter
+        mysqli_stmt_bind_param($stmt, 's', $emailValue); // Lier l'email
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
 
-        // Check if the query was successful
         if (!$result) {
-            die("Error executing query: " . mysqli_error($connection->conn));
+            die("Erreur d'exécution de la requête : " . mysqli_error($connection->conn));
         }
 
-        // Check if a user was found
+        // Vérifier si l'utilisateur est trouvé
         if (mysqli_num_rows($result) == 1) {
-            // Fetch user details
+            // Récupérer les détails de l'utilisateur
             $user = mysqli_fetch_assoc($result);
 
-            // Verify the password using password_verify
+            // Vérifier le mot de passe
             if (password_verify($passwordValue, $user['password'])) {
-                // Start session and store user details in session
+                // Démarrer la session et stocker les informations de l'utilisateur
                 session_start();
                 $_SESSION["emailS"] = $emailValue;
-                $_SESSION["roleS"] = $user['role']; // Store user role in session
+                $_SESSION["roleS"] = $user['role']; // Stocker le rôle dans la session
 
-                // Redirect based on user role
+                // Redirection en fonction du rôle de l'utilisateur
                 if ($user['role'] == 'administrateur') {
-                    header("Location: admin_dashboard.php"); // Admin dashboard
+                    header("Location: admin_dashboard.php");
                     exit();
                 } else if ($user['role'] == 'professeur') {
-                    header("Location: prof_dashboard.php"); // Professor dashboard
+                    header("Location: prof_dashboard.php");
                     exit();
                 } else {
-                    $emailErrorMsg = "Invalid user role.";
+                    $emailErrorMsg = "Rôle d'utilisateur invalide.";
                 }
             } else {
-                $emailErrorMsg = "Invalid email or password.";
+                $emailErrorMsg = "Email ou mot de passe incorrect.";
             }
         } else {
-            $emailErrorMsg = "Invalid email or password.";
+            $emailErrorMsg = "Email ou mot de passe incorrect.";
         }
     }
 }
