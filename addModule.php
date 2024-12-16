@@ -3,59 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Modules</title>
+    <title>Ajouter un Module</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
 
 <div class="container my-5">
-    <h2>Liste des Modules</h2>
-    <a class="btn btn-primary" href="addModule.php" role="button">Ajouter un Module</a>
-    <br><br>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nom du Module</th>
-                <th>Description</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        <?php
-        // Inclure le fichier de connexion
-        include_once('connection.php');
-        
-        // Créer une instance de la classe Connection
-        $connection = new Connection();
-        
-        // Appeler la méthode selectDatabase pour sélectionner la base de données
-        $connection->selectDatabase('cahierDeTexte');
-        
-        // Inclure le fichier Module
-        include('Module.php');
-        
-        // Appeler la méthode statique pour récupérer tous les modules
-        $modules = Module::selectAllModules('module', $connection->conn);
-        
-        // Afficher chaque module dans un tableau
-        foreach ($modules as $row) {
-            echo "
-            <tr>
-                <td>{$row['id_module']}</td>
-                <td>{$row['nom_module']}</td>
-                <td>{$row['description']}</td>
-                <td>
-                    <a class='btn btn-success btn-sm' href='updateModule.php?id_module={$row['id_module']}'>Modifier</a>
-                    <a class='btn btn-danger btn-sm' href='deleteModule.php?id_module={$row['id_module']}'>Supprimer</a>
-                </td>
-            </tr>";
-        }
-        ?>
-        </tbody>
-    </table>
+    <h2>Ajouter un Module</h2>
+    <form action="addModule.php" method="POST">
+        <div class="mb-3">
+            <label for="nom_module" class="form-label">Nom du Module</label>
+            <input type="text" class="form-control" id="nom_module" name="nom_module" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" name="submit">Ajouter</button>
+    </form>
 </div>
+
+<?php
+if (isset($_POST['submit'])) {
+    // Récupérer les données du formulaire
+    $nom_module = $_POST['nom_module'];
+    $description = $_POST['description'];
+    include('connection.php');
+    include('module.php');
+    // Créer une instance de la classe Module
+    $module = new Module($nom_module, $description);
+
+    // Ajouter le module dans la base de données
+    $connection = new Connection();
+    $connection->selectDatabase('cahierDeTexte');
+    $module->insertModule('module', $connection->conn);
+    
+    if (Module::$successMsg) {
+        echo "<div class='alert alert-success' role='alert'>" . Module::$successMsg . "</div>";
+    } else {
+        echo "<div class='alert alert-danger' role='alert'>" . Module::$errorMsg . "</div>";
+    }
+}
+?>
 
 </body>
 </html>
